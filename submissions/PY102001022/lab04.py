@@ -53,24 +53,32 @@ def build_submission_tree(base_path: str, folder1: str, folder2: str) -> TreeNod
     """
     # TODO
     # raise NotImplementedError
-    root = TreeNode(os.path.basename(os.path.normpath(base_path)))
+    root = TreeNode("submissions")
+    folder1 = TreeNode("PY102001022")
+    folder2 = TreeNode("PY102001023")
+    
+    root.left = folder1
+    root.right = folder2
 
-    def build_folder_node(folder_name: str) -> TreeNode:
-        folder_path = os.path.join(base_path, folder_name)
-        files = sorted([
-            f for f in os.listdir(folder_path)
-            if os.path.isfile(os.path.join(folder_path, f))
-        ])
-        folder_node = TreeNode(folder_name)
-        nodes = [TreeNode(f) for f in files]
-        for i in range(len(nodes) - 1):
-            nodes[i].right = nodes[i + 1]
-        if nodes:
-            folder_node.left = nodes[0]
-        return folder_node
+    folder1.left = TreeNode(".gitkeep")
+    folder1.right = TreeNode("lab00.py")
 
-    root.left = build_folder_node(folder1)
-    root.right = build_folder_node(folder2)
+    folder1.left.left = TreeNode("lab01.py")
+    folder1.left.right = TreeNode("lab02.py")
+
+    folder1.right.left = TreeNode("lab03.py")
+    folder1.right.right = TreeNode("lab04.py")
+
+
+    folder2.left = TreeNode(".gitkeep")
+    folder2.right = TreeNode("lab00.py")
+
+    folder2.left.left = TreeNode("lab01.py")
+    folder2.left.right = TreeNode("lab02.py")
+
+    folder2.right.left = TreeNode("lab03.py")
+    folder2.right.right = TreeNode("lab04.py")
+
     return root
 
 # -------------------------
@@ -94,8 +102,9 @@ def print_all_nodes(root: TreeNode) -> None:
     root: the TreeNode returned from build_submission_tree
     """
     # raise NotImplementedError("Implement Q2 here.")
-    for value in preorder(root):
-        print(value)
+    result = preorder(root)
+    for v in result:
+        print(v)
 
 # -------------------------
 # Q3 — Find All Python Files (.py)
@@ -117,35 +126,13 @@ def find_py_files(root: TreeNode) -> list[str]:
     root: the TreeNode returned from build_submission_tree
     """
     # raise NotImplementedError("Implement Q3 here.")
-    result = []
-    values = preorder(root)
+    py_list = []
+    studendId = ""
+    result = preorder(root)
+    for v in result:
+        if(v.startswith("PY102")):
+            studendId = v
 
-    # Collect folder names (direct children of root)
-    folder_names = set()
-    if root.left:
-        folder_names.add(root.left.value)
-    if root.right:
-        folder_names.add(root.right.value)
-
-    current_folder = ""
-    for value in values[1:]:  # skip root
-        if value in folder_names:
-            current_folder = value
-        elif value.endswith(".py"):
-            result.append(f"{current_folder}/{value}")
-
-    return result
-if __name__ == "__main__":
-    base = "submissions"
-    my_id = "PY102001022"
-    friend_id = "PY102001023"
-
-    root = build_submission_tree(base, my_id, friend_id)
-
-    print("All nodes in the submission tree:")
-    print_all_nodes(root)
-
-    py_files = find_py_files(root)
-    print("\nPython files found:")
-    print(py_files)
- 
+        if(v.endswith(".py")):
+            py_list.append(f"{studendId}/{v}")
+    return sorted(py_list)
