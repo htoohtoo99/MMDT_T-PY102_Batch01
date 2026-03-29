@@ -1,9 +1,6 @@
 # -------------------------
 # Do not change the below Code
 # -------------------------
-import os
-
-
 class TreeNode:
     def __init__(self, value: str, left = None, right = None):
         self.value = value
@@ -45,6 +42,7 @@ def postorder(root):
 #         ├── fileC
 #         └── fileD
 # -------------------------
+import os
 
 def build_submission_tree(base_path: str, folder1: str, folder2: str) -> TreeNode:
     """
@@ -54,8 +52,42 @@ def build_submission_tree(base_path: str, folder1: str, folder2: str) -> TreeNod
     returns: root TreeNode
     """
     # TODO
-#    raise NotImplementedError
 
+    def get_files(path):
+        only_file=[]
+        if not os.path.exists(path):
+            return []
+
+        all_items=os.listdir(path)
+        for item in all_items:
+            full_path = os.path.join(path,item)
+            if os.path.isfile(full_path):
+                only_file.append(item)
+        return only_file
+
+
+    def build_file_nodes(files):
+        if not files:
+            return None
+
+        root = TreeNode(files[0])
+        current = root
+
+        for f in files[1:]:
+            current.right=TreeNode(f)
+            current=current.right
+
+        return root
+
+    files1 = get_files(os.path.join(base_path, folder1))
+    files2 = get_files(os.path.join(base_path, folder2))
+
+    node_folder1 = TreeNode(folder1, left = build_file_nodes(files1))
+    node_folder2 = TreeNode(folder2, left = build_file_nodes(files2))
+
+    return TreeNode(base_path, left=node_folder1, right=node_folder2)
+
+    # raise NotImplementedError
 
 # -------------------------
 # Q2 — Visit All Nodes Using Tree Traversal (Print Everything)
@@ -77,9 +109,12 @@ def print_all_nodes(root: TreeNode) -> None:
     Traverse the tree and print the value stored in EVERY node.
     root: the TreeNode returned from build_submission_tree
     """
-    # raise NotImplementedError("Implement Q2 here.")
-    for value in preorder(root):
+
+    node = preorder(root)
+    for value in node:
         print(value)
+
+    #raise NotImplementedError("Implement Q2 here.")
 
 # -------------------------
 # Q3 — Find All Python Files (.py)
@@ -100,64 +135,18 @@ def find_py_files(root: TreeNode) -> list[str]:
     Traverse the tree and return a list of all '.py' files.
     root: the TreeNode returned from build_submission_tree
     """
-    # raise NotImplementedError("Implement Q3 here.")
-<<<<<<< HEAD
-    result = []
-    values = preorder(root)
 
-    # Collect folder names (direct children of root)
-    folder_names = set()
-    if root.left:
-        folder_names.add(root.left.value)
-    if root.right:
-        folder_names.add(root.right.value)
+    result=[]
+    node=preorder(root)
+    curr_folder=""
     
-    current_folder = ""
-    for value in values[1:]:  
-        if value in folder_names:
-            current_folder = value
+    for value in node:
+        if "." not in value:
+            curr_folder=value
         elif value.endswith(".py"):
-            result.append(f"{current_folder}/{value}")
+            result.append(f"{curr_folder}/{value}")
 
     return result
 
-
-if __name__ == "__main__":
-    base = "submissions"
-    my_id = "PY102001022"
-    friend_id = "PY102001023"
-=======
-    py_files = []
-
-    def helper(node: TreeNode, path: str):
-        if not node:
-            return
-        # Build current path
-        current_path = f"{path}/{node.value}" if path else node.value
-        # Leaf node ending with .py
-        if not node.left and not node.right and node.value.endswith(".py"):
-            py_files.append(current_path)
-        helper(node.left, current_path)
-        helper(node.right, current_path)
-
-    helper(root, "")
-    return py_files
-if __name__ == "__main__":
-    base = "submissions"
-    my_id = "PY102001022"
-    friend_id = "PY102001020"  # Your friend’s folder
-
->>>>>>> upstream/main
-    root = build_submission_tree(base, my_id, friend_id)
-
-    print("All nodes in the submission tree:")
-    print_all_nodes(root)
-
-    py_files = find_py_files(root)
-    print("\nPython files found:")
-<<<<<<< HEAD
-    print(py_files)
-=======
-    print(py_files)
+    # raise NotImplementedError("Implement Q3 here.")
  
->>>>>>> upstream/main

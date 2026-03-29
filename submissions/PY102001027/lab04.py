@@ -1,9 +1,6 @@
 # -------------------------
 # Do not change the below Code
 # -------------------------
-import os
-
-
 class TreeNode:
     def __init__(self, value: str, left = None, right = None):
         self.value = value
@@ -45,6 +42,7 @@ def postorder(root):
 #         ├── fileC
 #         └── fileD
 # -------------------------
+import os
 
 def build_submission_tree(base_path: str, folder1: str, folder2: str) -> TreeNode:
     """
@@ -53,10 +51,51 @@ def build_submission_tree(base_path: str, folder1: str, folder2: str) -> TreeNod
     folder2: name of your friend's folder inside submissions
     returns: root TreeNode
     """
-    # TODO
-#    raise NotImplementedError
+    # base_path = "submissions"
+    # folder1 = "PY102001027"
+    # folder2 = "PY102001025"
 
+    root = TreeNode(base_path)
+    node_folder1 = TreeNode(folder1)
+    node_folder2 = TreeNode(folder2)
 
+    root.left = node_folder1
+    root.right = node_folder2
+
+    for folder_node, folder_name in [(node_folder1, folder1), (node_folder2, folder2)]:
+        if not folder_name:
+            continue
+        folder_name = str(folder_name)
+        folder_path = os.path.join( base_path,folder_name )
+
+        if not os.path.exists(folder_path):
+            continue
+
+        previous_file_node = None
+        try:
+            entries = os.listdir(folder_path)
+        except Exception:
+            continue
+
+        for entry in entries:
+            full_path = os.path.join(folder_path, entry )
+
+            if os.path.isfile(full_path):
+                new_node = TreeNode(entry)
+
+                if folder_node.left is None:
+                    folder_node.left = new_node
+                    
+                else:
+                    previous_file_node.right = new_node
+                    
+                previous_file_node = new_node
+
+    return root
+
+# root = build_submission_tree("submissions", "PY102001025", "PY102001027")
+# print(preorder(root))
+   
 # -------------------------
 # Q2 — Visit All Nodes Using Tree Traversal (Print Everything)
 #
@@ -77,9 +116,12 @@ def print_all_nodes(root: TreeNode) -> None:
     Traverse the tree and print the value stored in EVERY node.
     root: the TreeNode returned from build_submission_tree
     """
-    # raise NotImplementedError("Implement Q2 here.")
-    for value in preorder(root):
-        print(value)
+    print_values= preorder(root)
+    for v in print_values:
+        print(v)
+
+# root = build_submission_tree("submissions", "PY102001025", "PY102001027")
+# print_all_nodes(root)
 
 # -------------------------
 # Q3 — Find All Python Files (.py)
@@ -100,64 +142,18 @@ def find_py_files(root: TreeNode) -> list[str]:
     Traverse the tree and return a list of all '.py' files.
     root: the TreeNode returned from build_submission_tree
     """
-    # raise NotImplementedError("Implement Q3 here.")
-<<<<<<< HEAD
-    result = []
+    find_result = []
     values = preorder(root)
+    current_folder =""
+    for v in values:
+        if v== root.value:
+            continue
+        if not v.endswith(".py") and "." not in v:
+            current_folder=v
+        elif v.endswith(".py") and current_folder:
+            find_result.append(f"{current_folder}/{v}")
+    return find_result
 
-    # Collect folder names (direct children of root)
-    folder_names = set()
-    if root.left:
-        folder_names.add(root.left.value)
-    if root.right:
-        folder_names.add(root.right.value)
-    
-    current_folder = ""
-    for value in values[1:]:  
-        if value in folder_names:
-            current_folder = value
-        elif value.endswith(".py"):
-            result.append(f"{current_folder}/{value}")
-
-    return result
-
-
-if __name__ == "__main__":
-    base = "submissions"
-    my_id = "PY102001022"
-    friend_id = "PY102001023"
-=======
-    py_files = []
-
-    def helper(node: TreeNode, path: str):
-        if not node:
-            return
-        # Build current path
-        current_path = f"{path}/{node.value}" if path else node.value
-        # Leaf node ending with .py
-        if not node.left and not node.right and node.value.endswith(".py"):
-            py_files.append(current_path)
-        helper(node.left, current_path)
-        helper(node.right, current_path)
-
-    helper(root, "")
-    return py_files
-if __name__ == "__main__":
-    base = "submissions"
-    my_id = "PY102001022"
-    friend_id = "PY102001020"  # Your friend’s folder
-
->>>>>>> upstream/main
-    root = build_submission_tree(base, my_id, friend_id)
-
-    print("All nodes in the submission tree:")
-    print_all_nodes(root)
-
-    py_files = find_py_files(root)
-    print("\nPython files found:")
-<<<<<<< HEAD
-    print(py_files)
-=======
-    print(py_files)
- 
->>>>>>> upstream/main
+# root = build_submission_tree("submissions", "PY102001025", "PY102001027")
+# result = find_py_files(root)
+# print(result)

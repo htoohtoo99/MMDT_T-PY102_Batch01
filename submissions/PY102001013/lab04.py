@@ -1,31 +1,36 @@
+from pathlib import Path
+
+
 # -------------------------
 # Do not change the below Code
 # -------------------------
-import os
-
-
 class TreeNode:
-    def __init__(self, value: str, left = None, right = None):
+    def __init__(self, value: str, left=None, right=None):
         self.value = value
         self.left = left
         self.right = right
+
 
 def preorder(root):
     if not root:
         return []
     return [root.value] + preorder(root.left) + preorder(root.right)
 
+
 def inorder(root):
     if not root:
         return []
     return inorder(root.left) + [root.value] + inorder(root.right)
+
 
 def postorder(root):
     if not root:
         return []
     return postorder(root.left) + postorder(root.right) + [root.value]
 
+
 # -------------------------
+
 
 # -------------------------
 # Q1 — Build Submission Tree for submissions folder
@@ -46,6 +51,13 @@ def postorder(root):
 #         └── fileD
 # -------------------------
 
+
+class NormalTreeNode:
+    def __init__(self, value):
+        self.value = value
+        self.children = []
+
+
 def build_submission_tree(base_path: str, folder1: str, folder2: str) -> TreeNode:
     """
     base_path: "submissions"
@@ -53,9 +65,54 @@ def build_submission_tree(base_path: str, folder1: str, folder2: str) -> TreeNod
     folder2: name of your friend's folder inside submissions
     returns: root TreeNode
     """
-    # TODO
-#    raise NotImplementedError
+    base = Path(base_path)
+    root = NormalTreeNode(base_path.name)
 
+    for folder in [folder1, folder2]:
+        f_node = NormalTreeNode(folder.name)
+        f_path = base / folder
+
+        files = [f for f in f_path.iterdir() if f.is_file()]
+
+        for file in files:
+            f_node.children.append(NormalTreeNode(file.name))
+
+        root.children.append(f_node)
+
+    def encode_to_binary(node: NormalTreeNode) -> TreeNode:
+        if not node:
+            return None
+
+        b_node = TreeNode(node.value)
+
+        if node.children:
+            # first child to left
+
+            b_node.left = encode_to_binary(node.children[0])
+
+            # remaining children → right sibling chain
+            current = b_node.left
+            for child in node.children[1:]:
+                current.right = encode_to_binary(child)
+                current = current.right
+
+        return b_node
+
+    # print(encode_to_binary(root))
+
+    return encode_to_binary(root)
+
+
+"""
+    def to_BTree(normal_node: NormalTreeNode) -> TreeNode:
+        if not normal_node:
+            return None
+
+        b_tree = TreeNode(normal_node.value)
+        if normal_node.children:
+            b_tree.left = normal_node.children[0]
+            b_tree.right = normal_node.children[1:]
+"""
 
 # -------------------------
 # Q2 — Visit All Nodes Using Tree Traversal (Print Everything)
@@ -72,14 +129,17 @@ def build_submission_tree(base_path: str, folder1: str, folder2: str) -> TreeNod
 # - Print exactly the node.value for each visited node.
 # -------------------------
 
+
 def print_all_nodes(root: TreeNode) -> None:
     """
     Traverse the tree and print the value stored in EVERY node.
     root: the TreeNode returned from build_submission_tree
     """
-    # raise NotImplementedError("Implement Q2 here.")
-    for value in preorder(root):
-        print(value)
+    # return [root.value] + preorder(root.left) + preorder(root.right)
+
+    for f_name in preorder(root):
+        print(f_name)
+
 
 # -------------------------
 # Q3 — Find All Python Files (.py)
@@ -95,69 +155,32 @@ def print_all_nodes(root: TreeNode) -> None:
 #     ["folderA/file1.py", "folderB/main.py"]
 # -------------------------
 
+
 def find_py_files(root: TreeNode) -> list[str]:
     """
     Traverse the tree and return a list of all '.py' files.
     root: the TreeNode returned from build_submission_tree
     """
-    # raise NotImplementedError("Implement Q3 here.")
-<<<<<<< HEAD
-    result = []
-    values = preorder(root)
-
-    # Collect folder names (direct children of root)
-    folder_names = set()
-    if root.left:
-        folder_names.add(root.left.value)
-    if root.right:
-        folder_names.add(root.right.value)
-    
-    current_folder = ""
-    for value in values[1:]:  
-        if value in folder_names:
-            current_folder = value
-        elif value.endswith(".py"):
-            result.append(f"{current_folder}/{value}")
-
-    return result
-
-
-if __name__ == "__main__":
-    base = "submissions"
-    my_id = "PY102001022"
-    friend_id = "PY102001023"
-=======
     py_files = []
+    for f_name in preorder(root):
+        print(f_name[-3:])
+        if f_name[-3:] == ".py":
+            py_files.append(f_name)
 
-    def helper(node: TreeNode, path: str):
-        if not node:
-            return
-        # Build current path
-        current_path = f"{path}/{node.value}" if path else node.value
-        # Leaf node ending with .py
-        if not node.left and not node.right and node.value.endswith(".py"):
-            py_files.append(current_path)
-        helper(node.left, current_path)
-        helper(node.right, current_path)
-
-    helper(root, "")
+    # print(py_files)
     return py_files
-if __name__ == "__main__":
-    base = "submissions"
-    my_id = "PY102001022"
-    friend_id = "PY102001020"  # Your friend’s folder
 
->>>>>>> upstream/main
-    root = build_submission_tree(base, my_id, friend_id)
 
-    print("All nodes in the submission tree:")
-    print_all_nodes(root)
+"""
 
-    py_files = find_py_files(root)
-    print("\nPython files found:")
-<<<<<<< HEAD
-    print(py_files)
-=======
-    print(py_files)
- 
->>>>>>> upstream/main
+SUBMISSION_PATH = Path(__file__).resolve().parent.parent
+
+F1 = SUBMISSION_PATH / "PY102001013"
+F2 = SUBMISSION_PATH / "PY102001014"
+root = build_submission_tree(SUBMISSION_PATH, F1, F2)
+# print(inorder(root))
+# print(preorder(root))
+# print_all_nodes(root)
+find_py_files(root)
+
+"""
